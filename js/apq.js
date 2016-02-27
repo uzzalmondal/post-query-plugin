@@ -6,19 +6,20 @@
 	     $('#formsub').submit(function(){
          var count = $('#ppp').val();
 
-           $.post(
-                    ajaxurl, 
-                       {
-                         'action': 'ajaxProsessData',
-                         'count' : count
-                       }, 
-                       function(response){
-                            //alert('The server responded: ' + response);
-                            $('#allpost').html(response);
-                       }
-                       );
+          var data = {
+                      'action': 'ajaxProsessData',
+                      'count' : count
+                      };
+
+                            // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
+                      $.post(ajaxurl, data, function(response) {
+                             // alert('Got this from the server: ' + response);
+                              $('#allpost').html(response);
+                         });
            return false;
 	     });
 
     });
 })(jQuery);
+
+           
