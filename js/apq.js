@@ -1,8 +1,16 @@
 
 (function($){
     "use strict";
+
+             
+                 
     $(document).ready(function() {
       
+        $("#emailsender").on("click",function(){
+                   alert();
+        });  
+
+
 	     $('#formsub').submit(function(){
          var count = $('#ppp').val();
 
@@ -16,6 +24,7 @@
                              // alert('Got this from the server: ' + response);
                               $('#allpost').html(response);
                          });
+   
            return false;
 	     });
 

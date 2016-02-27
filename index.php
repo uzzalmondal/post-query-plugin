@@ -140,89 +140,54 @@ if ( ! defined( 'WPINC' ) ) {
            echo '</tr>';
            echo '</thead>';
            echo '<tbody>';
-           $args = array(  
-                'post_id' => 0,
-                'count' => false,   
-                'date_query' => null,
-                );
-
-             // The Query
-             $comments_query = new WP_Comment_Query;
-             $comments = $comments_query->query( $args );
            $bgCount = 0;
            $bg='';
+           $max_comment=0;
+           $min_comment=0;
            $max_comment_author ='';
-           $comment_author ='';
-           $comment_author_email ='';
            $color='';
-          foreach ( $comments as $comment ) {
-              
+           $query = " SELECT COUNT(  `user_id` ) AS totalcomment,  `comment_author` ,  `comment_author_email` 
+                      FROM  `wp_comments` 
+                      WHERE 1 
+                      GROUP BY  `user_id` 
+                      ORDER BY totalcomment DESC 
+                      LIMIT 0 , 30";
+            $query = mysql_query($query);
+
+            while ($row = mysql_fetch_array( $query)) {
+             
                if($bgCount%2==1){$bg='#484848';$color='#fff';}else{$bg='#282828';$color='#fff';}
                echo "<tr style='background:".$bg.";color:".$color."'>";
-               echo "<td>". $comment->comment_author ."</td>";
-               echo "<td>". $comment->comment_author_email."</td>";
-               echo "<td>". $comment->post_name."</td>";
+               echo "<td>". $row['comment_author'] ."</td>";
+               echo "<td>". $row['comment_author_email'] ."</td>";
+               echo "<td>". $row['totalcomment']."</td>";
                echo "</tr>";
-               $comment_author .= $comment->comment_author.'/';
-               if($comment->comment_author === $max_comment_author){
-                  $max_comment_author = $comment->comment_author;
-               }
+
+               $max_comment= $row['totalcomment'];
+
+               if($max_comment > $min_comment ){
+                   $temp = $max_comment;               
+                   $min_comment = $temp;
+                   $max_comment_author = $row['comment_author'];
+                   $comment_author_email = $row['comment_author_email'];
+               }else {
+                   $max_comment = $min_comment ;
+                  
+               };
                $bgCount++;
-                    
-          }
+            }
+         
+          
           echo '</tbody>';
           echo '</table>';
           echo '<div>';
-          $authors = preg_split("/[\/]+/", $comment_author);        
-          $author = '';
-          $count = 1; 
-          $totalElement = 0;
-          $shorting_author = '';
-
-          /*
-          SELECT COUNT(  `user_id` ) AS totalcomment,  `comment_author` ,  `comment_author_email` 
-          FROM  `wp_comments` 
-          WHERE 1 
-          GROUP BY  `user_id` 
-          ORDER BY totalcomment DESC 
-          LIMIT 0 , 30
-          */
-
-          foreach ( $authors as  $author) {
-               
-                $totalElement++;
-            
-          }
-          for( $i=0; $i<$totalElement; $i++){
-
-              for($j= $i+1;$j<$totalElement;$j++){
-                    if( $authors[$i] === $authors[$j] ){
-                       $author = $authors[$i]; 
-                       $count++; 
-                    }else if(($totalElement-1)== $j){
-                       $shorting_author .= $author.'*'.$count.'/';                
-                       $author='';
-                       $count=1;
-                    }
-                
-              }
-          }
-         // echo $shorting_author;
-          $authors = preg_split("/[\/]+/", $shorting_author);
-          $authors_match ='';
-          $totalElement = 0;
-          foreach ( $authors as  $author) {
-
-                 $returnValue = preg_match('/^[a-zA-Z][^0-9]+[0-9]$/', $author, $matches);
-                 $authors_match .= $matches[$totalElement].'  /'; 
-                 $totalElement++;
-            
-          }
-          echo $authors_match;
-          echo '<h4> Maximum Comment Author :</h4>
-                <p style="background:'.$bg.';color:'.$color.'; padding:10px;text-align:center">
-                '. $author.' 
-              </p>';
+          echo '<h4> Maximum Comment Author :</h4>';
+          echo '<p style="background:'.$bg.';color:'.$color.'; padding:10px;text-align:center">';
+          echo  $max_comment_author .'<br/> Email :';
+          echo '<label id="email" ><input type="button" value="'.$comment_author_email.'" class="button-primary" id="emailsender" /></label>';     
+          echo '</p>';
+          echo '</div>';
+         
           echo '</div>';
           echo '</div>';
   
